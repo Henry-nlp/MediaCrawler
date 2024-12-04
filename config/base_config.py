@@ -11,7 +11,7 @@
 
 # 基础配置
 PLATFORM = "xhs"
-KEYWORDS = "编程副业,编程兼职"  # 关键词搜索配置，以英文逗号分隔
+KEYWORDS = "中复村"  # 关键词搜索配置，以英文逗号分隔
 LOGIN_TYPE = "qrcode"  # qrcode or phone or cookie
 COOKIES = ""
 # 具体值参见media_platform.xxx.field下的枚举值，暂时只支持小红书
@@ -50,7 +50,8 @@ USER_DATA_DIR = "%s_user_data_dir"  # %s will be replaced by platform name
 START_PAGE = 1
 
 # 爬取视频/帖子的数量控制
-CRAWLER_MAX_NOTES_COUNT = 200
+CRAWLER_MAX_NOTES_COUNT = 1000
+# CRAWLER_MAX_NOTES_COUNT = 10
 
 # 并发爬虫数量控制
 MAX_CONCURRENCY_NUM = 1
@@ -59,10 +60,10 @@ MAX_CONCURRENCY_NUM = 1
 ENABLE_GET_IMAGES = False
 
 # 是否开启爬评论模式, 默认开启爬评论
-ENABLE_GET_COMMENTS = True
+ENABLE_GET_COMMENTS = False
 
 # 爬取一级评论的数量控制(单视频/帖子)
-CRAWLER_MAX_COMMENTS_COUNT_SINGLENOTES = 10
+CRAWLER_MAX_COMMENTS_COUNT_SINGLENOTES = 100
 
 
 # 是否开启爬二级评论模式, 默认不开启爬二级评论
@@ -158,13 +159,25 @@ ZHIHU_CREATOR_URL_LIST = [
 ]
 
 # 词云相关
+# 是否开启生成note内容词云图
+ENABLE_GET_NOTE_WORDCLOUD = True
 # 是否开启生成评论词云图
 ENABLE_GET_WORDCLOUD = False
 # 自定义词语及其分组
 # 添加规则：xx:yy 其中xx为自定义添加的词组，yy为将xx该词组分到的组名。
 CUSTOM_WORDS = {
-    "零几": "年份",  # 将“零几”识别为一个整体
+    "长汀": "公共景观",  # 将“零几”识别为一个整体
     "高频词": "专业术语",  # 示例自定义词
+    "纪念馆": "公共建筑",
+    "零公里广场": "公共景观",
+    "五角星": "公共景观",
+    "红旗墙": "公共景观",
+    "长征场景": "公共景观",
+    "红色记忆": "传统文化",
+    "脚印": "公共景观",
+    "零公里": "公共景观",
+    "中复村": "公共景观",
+    "长征": "公共景观"
 }
 
 # 停用(禁用)词文件路径

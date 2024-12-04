@@ -51,6 +51,7 @@ class XiaoHongShuLogin(AbstractLogin):
             utils.logger.info("[XiaoHongShuLogin.check_login_state] 登录过程中出现验证码，请手动验证")
 
         current_cookie = await self.browser_context.cookies()
+        print("login type: by cookie; current cookie:\t", current_cookie)
         _, cookie_dict = utils.convert_cookies(current_cookie)
         current_web_session = cookie_dict.get("web_session")
         if current_web_session != no_logged_in_session:

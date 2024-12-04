@@ -112,7 +112,7 @@ class XiaoHongShuCrawler(AbstractCrawler):
         utils.logger.info(
             "[XiaoHongShuCrawler.search] Begin search xiaohongshu keywords"
         )
-        xhs_limit_count = 20  # xhs limit page fixed value
+        xhs_limit_count = 200  # xhs limit page fixed value
         if config.CRAWLER_MAX_NOTES_COUNT < xhs_limit_count:
             config.CRAWLER_MAX_NOTES_COUNT = xhs_limit_count
         start_page = config.START_PAGE
@@ -121,7 +121,7 @@ class XiaoHongShuCrawler(AbstractCrawler):
             utils.logger.info(
                 f"[XiaoHongShuCrawler.search] Current search keyword: {keyword}"
             )
-            page = 1
+            page = 1 # 待确定含义，检索结果页面号？
             search_id = get_search_id()
             while (
                 page - start_page + 1
@@ -250,7 +250,7 @@ class XiaoHongShuCrawler(AbstractCrawler):
             if note_detail:
                 need_get_comment_note_ids.append(note_detail.get("note_id", ""))
                 await xhs_store.update_xhs_note(note_detail)
-        await self.batch_get_note_comments(need_get_comment_note_ids)
+        await self.batch_get_note_comments(need_get_comment_note_ids) # 先关闭评论爬取
 
     async def get_note_detail_async_task(
         self,
@@ -319,6 +319,7 @@ class XiaoHongShuCrawler(AbstractCrawler):
             )
             return
 
+        # 输出了20个note list元素
         utils.logger.info(
             f"[XiaoHongShuCrawler.batch_get_note_comments] Begin batch get note comments, note list: {note_list}"
         )
@@ -331,6 +332,7 @@ class XiaoHongShuCrawler(AbstractCrawler):
             task_list.append(task)
         await asyncio.gather(*task_list)
 
+    # 报错：第一次爬取20个帖子主体信息后，开始获取评论信息出错
     async def get_comments(self, note_id: str, semaphore: asyncio.Semaphore):
         """Get note comments with keyword filtering and quantity limitation"""
         async with semaphore:

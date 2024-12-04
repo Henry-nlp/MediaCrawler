@@ -205,6 +205,7 @@ class XiaoHongShuClient(AbstractApiClient):
         search_id: str = get_search_id(),
         page: int = 1,
         page_size: int = 20,
+        # page_size: int = 100,
         sort: SearchSortType = SearchSortType.GENERAL,
         note_type: SearchNoteType = SearchNoteType.ALL,
     ) -> Dict:
@@ -282,6 +283,8 @@ class XiaoHongShuClient(AbstractApiClient):
             "top_comment_id": "",
             "image_formats": "jpg,webp,avif",
         }
+        # if xsec_token:
+
         return await self.get(uri, params)
 
     async def get_note_sub_comments(
@@ -313,6 +316,7 @@ class XiaoHongShuClient(AbstractApiClient):
         crawl_interval: float = 1.0,
         callback: Optional[Callable] = None,
         max_count: int = 10,
+        # max_count: int = 1,
     ) -> List[Dict]:
         """
         获取指定笔记下的所有一级评论，该方法会一直查找一个帖子下的所有评论信息

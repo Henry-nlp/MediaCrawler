@@ -21,6 +21,7 @@ from wordcloud import WordCloud
 
 import config
 from tools import utils
+import re
 
 plot_lock = asyncio.Lock()
 
@@ -40,7 +41,8 @@ class AsyncWordCloudGenerator:
 
     async def generate_word_frequency_and_cloud(self, data, save_words_prefix):
         all_text = ' '.join(item['content'] for item in data)
-        words = [word for word in jieba.lcut(all_text) if word not in self.stop_words and len(word.strip()) > 0]
+        words = [word for word in jieba.lcut(all_text) if word not in self.stop_words and len(word.strip()) > 1]
+        words = [word for word in words if not re.match(r'^\d+$', word) and not re.match(r'^[^\w\s]+$', word)]
         word_freq = Counter(words)
 
         # Save word frequency to file
@@ -58,13 +60,15 @@ class AsyncWordCloudGenerator:
     async def generate_word_cloud(self, word_freq, save_words_prefix):
         await plot_lock.acquire()
         top_20_word_freq = {word: freq for word, freq in
-                            sorted(word_freq.items(), key=lambda item: item[1], reverse=True)[:20]}
+                            sorted(word_freq.items(), key=lambda item: item[1], reverse=True)[:200]}
+        # top_50_word_freq = {word: freq for word, freq in
+        #                     sorted(word_freq.items(), key=lambda item: item[1], reverse=True)[:50]}
         wordcloud = WordCloud(
             font_path=config.FONT_PATH,
-            width=800,
-            height=400,
+            width=4000,
+            height=2000,
             background_color='white',
-            max_words=200,
+            max_words=400,
             stopwords=self.stop_words,
             colormap='viridis',
             contour_color='steelblue',

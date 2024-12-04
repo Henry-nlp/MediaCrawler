@@ -104,6 +104,70 @@
 - 支持保存到json中（data/目录下）
 
 
+## 代码说明
+- main.py：主程序入口，根据命令行参数选择对应的爬虫平台，并执行爬取操作
+- base_config.py：设置待爬虫平台，登录方式设置，爬取方式，搜索关键词
+- media_platform/xhs/core.py：小红书爬虫核心代码，包括登录、获取帖子信息、获取评论等操作
+ - xhs_limit_count：设置每次爬取帖子数量，不超过“CRAWLER_MAX_NOTES_COUNT”
+- store/xhs/_init_.py/update_xhs_note_comment：存储帖子评论的字段（设置可能会导致评论的部分字段无内容而报错）
+- media_platform/xhs/client.py/XiaoHongShuClient/get_note_all_comments：该函数字段max_count定义了一个帖子下可爬取的一级评论数量
+
+## 报错信息
+### 爬取完帖子信息后，接着循环爬取帖子评论信息时报错，显示链接问题
+- 报错如下：
+```
+2024-12-01 23:20:30 MediaCrawler INFO (core.py:322) - [XiaoHongShuCrawler.batch_get_note_comments] Begin batch get note comments, note list: ['65d34abe000000000b014d94', '612bb2b5000000000102c756', '65b12434000000002c012867', '6074dd860000000001026d80', '66a4e8f4000000000d03199b', '60a6922a000000002103e4c5', '641105d100000000120316df', '5e0042b4000000000100753b', '6670f6be000000000e0327fc', '669c92fd0000000025001788', '6555eb2e000000003203013b', '66bd75cf000000000d032634', '62df5856000000001b0230cd', '63d74ad4000000001d012b49', '65fd6c190000000012037a2d', '666dacd5000000001c02181f', '667d92d1000000001f0064cd', '66901ac10000000025007b20', '66f2caed000000002c02a179', '670d1f6300000000240173d1']
+2024-12-01 23:20:30 MediaCrawler INFO (core.py:337) - [XiaoHongShuCrawler.get_comments] Begin get note id comments 65d34abe000000000b014d94       
+2024-12-01 23:20:33 MediaCrawler INFO (core.py:337) - [XiaoHongShuCrawler.get_comments] Begin get note id comments 612bb2b5000000000102c756
+Traceback (most recent call last):
+  File "E:\code\MediaCrawler\venv\lib\site-packages\tenacity\_asyncio.py", line 50, in __call__
+    result = await fn(*args, **kwargs)
+  File "E:\code\MediaCrawler\media_platform\xhs\client.py", line 118, in request
+    raise DataFetchError(data.get("msg", None))
+media_platform.xhs.exception.DataFetchError: 访问链接异常
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "E:\code\MediaCrawler\main.py", line 66, in <module>
+    asyncio.get_event_loop().run_until_complete(main())
+  File "C:\Users\71915\AppData\Local\Programs\Python\Python39\lib\asyncio\base_events.py", line 642, in run_until_complete
+    return future.result()
+  File "E:\code\MediaCrawler\main.py", line 56, in main
+    await crawler.start()
+  File "E:\code\MediaCrawler\media_platform\xhs\core.py", line 98, in start
+    await self.search()
+  File "E:\code\MediaCrawler\media_platform\xhs\core.py", line 176, in search
+    await self.batch_get_note_comments(note_id_list)
+  File "E:\code\MediaCrawler\media_platform\xhs\core.py", line 332, in batch_get_note_comments
+    await asyncio.gather(*task_list)
+  File "E:\code\MediaCrawler\media_platform\xhs\core.py", line 340, in get_comments
+    await self.xhs_client.get_note_all_comments(
+  File "E:\code\MediaCrawler\media_platform\xhs\client.py", line 332, in get_note_all_comments
+    comments_res = await self.get_note_comments(note_id, comments_cursor)
+  File "E:\code\MediaCrawler\media_platform\xhs\client.py", line 285, in get_note_comments
+    return await self.get(uri, params)
+  File "E:\code\MediaCrawler\media_platform\xhs\client.py", line 134, in get
+    return await self.request(
+  File "E:\code\MediaCrawler\venv\lib\site-packages\tenacity\_asyncio.py", line 88, in async_wrapped
+    return await fn(*args, **kwargs)
+  File "E:\code\MediaCrawler\venv\lib\site-packages\tenacity\_asyncio.py", line 47, in __call__
+    do = self.iter(retry_state=retry_state)
+  File "E:\code\MediaCrawler\venv\lib\site-packages\tenacity\__init__.py", line 326, in iter
+    raise retry_exc from fut.exception()
+tenacity.RetryError: RetryError[<Future at 0x27e7bae9640 state=finished raised DataFetchError>]
+```
+- 解决方案：暂时关闭小红书评论爬取。
+ - 关闭方式一：config/base_config.py 中参数设置
+ ···
+ line 63：ENABLE_GET_COMMENTS = False
+ ···
+ - 关闭方式二：media_platform/xhs/core.py 中评论爬取功能函数不调用
+···
+line 253：        # await self.batch_get_note_comments(need_get_comment_note_ids) # 先关闭评论爬取
+line 176：                            # await self.batch_get_note_comments(note_id_list)
+
+···
 
 # 其他常见问题可以查看在线文档
 > 

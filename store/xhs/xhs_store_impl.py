@@ -21,6 +21,8 @@ import pathlib
 from typing import Dict
 
 import aiofiles
+import sys
+sys.path.append("E:\\code\\MediaCrawler\\config")
 
 import config
 from base.base_crawler import AbstractStore
@@ -171,7 +173,6 @@ class XhsDbStoreImplement(AbstractStore):
         else:
             await update_creator_by_user_id(user_id, creator)
 
-
 class XhsJsonStoreImplement(AbstractStore):
     json_store_path: str = "data/xhs/json"
     words_store_path: str = "data/xhs/words"
@@ -179,7 +180,7 @@ class XhsJsonStoreImplement(AbstractStore):
     file_count:int=calculate_number_of_files(json_store_path)
     WordCloud = words.AsyncWordCloudGenerator()
 
-    def make_save_file_name(self, store_type: str) -> (str,str):
+    def make_save_file_name(self, store_type: str) -> (str):
         """
         make save file name by store type
         Args:
@@ -188,7 +189,6 @@ class XhsJsonStoreImplement(AbstractStore):
         Returns:
 
         """
-
         return (
             f"{self.json_store_path}/{crawler_type_var.get()}_{store_type}_{utils.get_current_date()}.json",
             f"{self.words_store_path}/{crawler_type_var.get()}_{store_type}_{utils.get_current_date()}"
@@ -223,6 +223,14 @@ class XhsJsonStoreImplement(AbstractStore):
                     await self.WordCloud.generate_word_frequency_and_cloud(save_data, words_file_name_prefix)
                 except:
                     pass
+
+            # 添加
+            # if config.ENABLE_GET_NOTE_WORDCLOUD:
+            #     try:
+            #         await self.WordCloud.generate_word_frequency_and_cloud(save_data, words_file_name_prefix)
+            #     except:
+            #         pass
+
     async def store_content(self, content_item: Dict):
         """
         content JSON storage implementation
